@@ -31,10 +31,18 @@ class EpsilonGreedyPolicy:
         self.epsilon = Epsilon
 
     def __call__(self, state, episode_i=1):
-        q = self.Q[state]
         if np.random.rand(1)[0] < self.epsilon:
-            return np.random.randint(0,len(q))
-        return np.argmax(q)
+            return np.random.randint(0,self.Q.shape[-1])
+        return np.argmax(self.Q[state])
+
+    def getDistribution(self):
+        shape = self.Q.shape
+        eps_policy = np.ones(dtype=np.float, shape=shape) * self.epsilon/shape[-1]
+        for state in np.ndindex(shape[:-1]):
+            action = np.argmax(self.Q[state])
+            eps_policy[state][action] += 1.0-self.epsilon
+        return eps_policy
+
 
 class SequenceGeneratorPlus:
     def __init__(self, getAction, getStartState, getTransition, episodes_max=1, steps_max=0,
@@ -46,9 +54,10 @@ class SequenceGeneratorPlus:
         self.steps_max = steps_max
         self.callback = callBack
         self.episode_maxlen = episode_maxlen
+        self.episode_i = 0
 
     def __iter__(self):
-        self.episode_i=1
+        self.episode_i = 1
         self.state = None
         self.step_i = 0
         self.episode_step = 0
