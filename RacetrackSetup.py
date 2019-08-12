@@ -62,20 +62,22 @@ def is_runout(contour, position, next_position):
 
 def getTransition(track_contour, state, action, finish_line, getStartPosition):
     accel = ACCELERATION[action]
+    # challanging non-deterministic behavior
+    #if np.random.randint(0,10,1)[0] == 0:
+    #    accel = [0,0]
+
     next_velocity = np.clip([state[2]+accel[0],state[3]+accel[1]], 
                             MIN_VELOCITY, MAX_VELOCITY)
-    if (next_velocity == [0,0]).all():
+    if (next_velocity == 0).all():
         next_velocity = np.array([state[2],state[3]])
     position = np.array([state[0],state[1]])
     next_position = position + next_velocity
+    next_state = tuple(next_position) + tuple(next_velocity)
 
     if is_finished(finish_line, position, next_position):
-        return (True, getStartPosition())
+        return (True,next_state)
 
-    if not is_runout(track_contour, position, next_position):
-        next_state = tuple(next_position) + tuple(next_velocity)
-    else:
+    if is_runout(track_contour, position, next_position):
         next_state = getStartPosition()
-        
+
     return (False,next_state)
-    

@@ -74,13 +74,13 @@ class SequenceGeneratorPlus:
 
         action = self.get_action(self.state)
         keep_state = self.state
-        is_terminal, self.state, reward = self.get_transition(keep_state, action)
+        is_terminal, next_state, reward = self.get_transition(keep_state, action)
 
         if self.episode_maxlen > 0 and self.episode_step >= self.episode_maxlen:
             is_terminal = True
 
         if self.callback:
-            self.callback(self, keep_state, is_terminal, self.state, action, reward)
+            self.callback(self, keep_state, is_terminal, next_state, action, reward)
 
         self.step_i += 1
         self.episode_i += int(is_terminal)
@@ -88,6 +88,8 @@ class SequenceGeneratorPlus:
 
         if is_terminal:
             self.state = None
+        else:
+            self.state = next_state
 
-        return keep_state, is_terminal, self.state, action, reward
+        return keep_state, is_terminal, next_state, action, reward
 
