@@ -60,11 +60,11 @@ def is_runout(contour, position, next_position):
         p1 = p2
     return False
 
-def getTransition(track_contour, state, action, finish_line, getStartPosition):
+def getTransition(track_contour, state, action, finish_line, getStartPosition, is_challenge=False):
     accel = ACCELERATION[action]
     # challanging non-deterministic behavior
-    #if np.random.randint(0,10,1)[0] == 0:
-    #    accel = [0,0]
+    if is_challenge and np.random.randint(0,10,1)[0] == 0:
+        accel = [0,0]
 
     next_velocity = np.clip([state[2]+accel[0],state[3]+accel[1]], 
                             MIN_VELOCITY, MAX_VELOCITY)
